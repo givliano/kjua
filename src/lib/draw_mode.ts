@@ -1,4 +1,28 @@
-const draw_label = (ctx, settings) => {
+interface Settings {
+  // size in pixel
+  size: number,
+
+  // background color
+  back: string,
+
+  // mode
+  mode: string,
+
+  // label/image size and pos in pc?: 0..100
+  mSize: number,
+  mPosX: number,
+  mPosY: number,
+
+  // label
+  label: string,
+  fontname?: string,
+  fontcolor: string,
+
+  // image element
+  image: any
+}
+
+const draw_label = (ctx: CanvasRenderingContext2D, settings: Settings) => {
     const size = settings.size;
     const font = 'bold ' + settings.mSize * 0.01 * size + 'px ' + settings.fontname;
 
@@ -19,7 +43,7 @@ const draw_label = (ctx, settings) => {
     ctx.fillText(settings.label, x, y);
 };
 
-const draw_image = (ctx, settings) => {
+const draw_image = (ctx: CanvasRenderingContext2D, settings: Settings) => {
     const size = settings.size;
     const w = settings.image.naturalWidth || 1;
     const h = settings.image.naturalHeight || 1;
@@ -35,7 +59,7 @@ const draw_image = (ctx, settings) => {
     ctx.drawImage(settings.image, x, y, iw, ih);
 };
 
-const draw_mode = (ctx, settings) => {
+export const draw_mode = (ctx: CanvasRenderingContext2D, settings: Settings) => {
     const mode = settings.mode;
     if (mode === 'label') {
         draw_label(ctx, settings);
@@ -44,4 +68,3 @@ const draw_mode = (ctx, settings) => {
     }
 };
 
-module.exports = draw_mode;

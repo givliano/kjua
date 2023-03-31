@@ -1,8 +1,8 @@
-const create_draw_ctx = ctx => {
+const create_draw_ctx = (ctx: CanvasRenderingContext2D) => {
     return {
-        m(x, y) {ctx.moveTo(x, y); return this;},
-        l(x, y) {ctx.lineTo(x, y); return this;},
-        a(...args) {ctx.arcTo(...args); return this;}
+        m(x: number, y: number) {ctx.moveTo(x, y); return this;},
+        l(x: number, y: number) {ctx.lineTo(x, y); return this;},
+        a(...args: [number, number, number, number, number]) {ctx.arcTo(...args); return this;}
     };
 };
 
@@ -56,7 +56,7 @@ const draw_light = (ctx, l, t, r, b, rad, nw, ne, se, sw) => {
     }
 };
 
-const draw_module_rounded = (qr, ctx, settings, width, row, col) => {
+export const draw_module_rounded = (qr, ctx, settings, width, row, col) => {
     const left = col * width;
     const top = row * width;
     const right = left + width;
@@ -86,4 +86,3 @@ const draw_module_rounded = (qr, ctx, settings, width, row, col) => {
     }
 };
 
-module.exports = draw_module_rounded;
