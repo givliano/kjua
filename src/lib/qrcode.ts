@@ -1,18 +1,20 @@
 const RE_CODE_LENGTH_OVERFLOW = /code length overflow/i;
 
-const qr_gen = require('qrcode-generator');
+// const qr_gen = require('qrcode-generator');
+import qr_gen from 'qrcode-generator';
+
 qr_gen.stringToBytes = qr_gen.stringToBytesFuncs['UTF-8'];
 
-const min_qrcode = (text, level, min_ver = 1) => {
-    min_ver = Math.max(1, min_ver);
+const min_qrcode = (text: string, level: ErrorCorrectionLevel, min_ver: TypeNumber = 1) => {
+    min_ver = Math.max(1, min_ver) as TypeNumber;
 
     for (let version = min_ver; version <= 40; version += 1) {
         try {
-            const qr = qr_gen(version, level);
+            const qr = qr_gen(version as TypeNumber, level); 
             qr.addData(text);
             qr.make();
             const module_count = qr.getModuleCount();
-            const is_dark = (row, col) => {
+            const is_dark = (row: number, col: number) => {
                 return row >= 0 &&
                     row < module_count &&
                     col >= 0 &&
@@ -29,7 +31,7 @@ const min_qrcode = (text, level, min_ver = 1) => {
     return null;
 };
 
-const quiet_qrcode = (text = '', level = 'L', min_ver = 1, quiet = 0) => {
+export const qrcode = (text: string = '', level: ErrorCorrectionLevel = 'L', min_ver: TypeNumber = 1, quiet: number = 0) => {
     const qr = min_qrcode(text, level, min_ver);
     if (qr) {
         const prev_is_dark = qr.is_dark;
@@ -39,4 +41,3 @@ const quiet_qrcode = (text = '', level = 'L', min_ver = 1, quiet = 0) => {
     return qr;
 };
 
-module.exports = quiet_qrcode;

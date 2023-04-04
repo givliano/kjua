@@ -1,71 +1,96 @@
-const {SVG_NS, get_attr, create_svg_el} = require('./dom');
+// const {SVG_NS, get_attr, create_svg_el} = require('./dom');
+import { SVG_NS, get_attr, create_svg_el, create_canvas, dpr } from './dom';
 
-const create_draw_ctx = ctx => {
-    const rnd = x => Math.round(x * 10) / 10;
-    const rndo = x => Math.round(x * 10) / 10 + ctx.o;
+import { Ctx, Settings } from './types';
+
+const create_draw_ctx = (ctx: Ctx) => {
+    const rnd = (x: number) => Math.round(x * 10) / 10;
+    const rndo = (x: number) => Math.round(x * 10) / 10 + ctx.o!;
     return {
-        m(x, y) {ctx.p += `M ${rndo(x)} ${rndo(y)} `; return this;},
-        l(x, y) {ctx.p += `L ${rndo(x)} ${rndo(y)} `; return this;},
-        a(x, y, rad) {ctx.p += `A ${rnd(rad)} ${rnd(rad)} 0 0 1 ${rndo(x)} ${rndo(y)} `; return this;}
+        m(x: number, y: number) {ctx.p += `M ${rndo(x)} ${rndo(y)} `; return this;},
+        l(x: number, y: number) {ctx.p += `L ${rndo(x)} ${rndo(y)} `; return this;},
+        a(x: number, y: number, rad: number) {ctx.p += `A ${rnd(rad)} ${rnd(rad)} 0 0 1 ${rndo(x)} ${rndo(y)} `; return this;}
     };
 };
 
-const draw_dark = (ctx, l, t, r, b, rad, nw, ne, se, sw) => {
+const draw_dark = (
+  ctx: Ctx,
+  l: number, 
+  t: number, 
+  r: number, 
+  b: number, 
+  rad: number, 
+  nw: boolean, 
+  ne: boolean, 
+  se: boolean, 
+  sw: boolean
+) => {
     if (nw) {
-        ctx.m(l + rad, t);
+        ctx.m!(l + rad, t);
     } else {
-        ctx.m(l, t);
+        ctx.m!(l, t);
     }
 
     if (ne) {
-        ctx.l(r - rad, t).a(r, t + rad, rad);
+        ctx.l!(r - rad, t).a!(r, t + rad, rad);
     } else {
-        ctx.l(r, t);
+        ctx.l!(r, t);
     }
 
     if (se) {
-        ctx.l(r, b - rad).a(r - rad, b, rad);
+        ctx.l!(r, b - rad).a!(r - rad, b, rad);
     } else {
-        ctx.l(r, b);
+        ctx.l!(r, b);
     }
 
     if (sw) {
-        ctx.l(l + rad, b).a(l, b - rad, rad);
+        ctx.l!(l + rad, b).a!(l, b - rad, rad);
     } else {
-        ctx.l(l, b);
+        ctx.l!(l, b);
     }
 
     if (nw) {
-        ctx.l(l, t + rad).a(l + rad, t, rad);
+        ctx.l!(l, t + rad).a!(l + rad, t, rad);
     } else {
-        ctx.l(l, t);
+        ctx.l!(l, t);
     }
 };
 
-const draw_light = (ctx, l, t, r, b, rad, nw, ne, se, sw) => {
+const draw_light = (
+  ctx: Ctx, 
+  l: number, 
+  t: number, 
+  r: number, 
+  b: number, 
+  rad: number, 
+  nw: boolean, 
+  ne: boolean, 
+  se: boolean, 
+  sw: boolean
+) => {
     if (nw) {
-        ctx.m(l + rad, t).l(l, t).l(l, t + rad).a(l + rad, t, rad);
+        ctx.m!(l + rad, t).l!(l, t).l!(l, t + rad).a!(l + rad, t, rad);
     }
 
     if (ne) {
-        ctx.m(r, t + rad).l(r, t).l(r - rad, t).a(r, t + rad, rad);
+        ctx.m!(r, t + rad).l!(r, t).l!(r - rad, t).a!(r, t + rad, rad);
     }
 
     if (se) {
-        ctx.m(r - rad, b).l(r, b).l(r, b - rad).a(r - rad, b, rad);
+        ctx.m!(r - rad, b).l!(r, b).l!(r, b - rad).a!(r - rad, b, rad);
     }
 
     if (sw) {
-        ctx.m(l, b - rad).l(l, b).l(l + rad, b).a(l, b - rad, rad);
+        ctx.m!(l, b - rad).l!(l, b).l!(l + rad, b).a!(l, b - rad, rad);
     }
 };
 
-const draw_mod = (qr, ctx, settings, width, row, col) => {
+const draw_mod = (qr, ctx: Ctx, settings: Settings, width: number, row: number, col: number) => {
     const left = col * width;
     const top = row * width;
     const right = left + width;
     const bottom = top + width;
-    const radius = settings.rounded * 0.005 * width;
+    const radius = settings.rounded! * 0.005 * width;
 
     const is_dark = qr.is_dark;
     const row_n = row - 1;
@@ -89,17 +114,17 @@ const draw_mod = (qr, ctx, settings, width, row, col) => {
     }
 };
 
-const create_path = (qr, settings) => {
+const create_path = (qr, settings: Settings) => {
     if (!qr) {
         return '';
     }
 
-    const ctx = {p: '', o: 0};
+    const ctx: Ctx = {p: '', o: 0};
     const mod_count = qr.module_count;
-    let mod_size = settings.size / mod_count;
+    let mod_size = settings.size! / mod_count;
     if (settings.crisp) {
         mod_size = Math.floor(mod_size);
-        ctx.o = Math.floor((settings.size - mod_size * mod_count) / 2);
+        ctx.o = Math.floor((settings.size! - mod_size * mod_count) / 2);
     }
 
     const draw_ctx = create_draw_ctx(ctx);
@@ -112,25 +137,27 @@ const create_path = (qr, settings) => {
     return ctx.p;
 };
 
-const add_label = (el, settings) => {
-    const size = settings.size;
-    const font = 'bold ' + settings.mSize * 0.01 * size + 'px ' + settings.fontname;
+const add_label = (el: HTMLElement | SVGElement | HTMLCanvasElement, settings: Settings) => {
+    const size = settings.size!;
+    const font = 'bold ' + settings.mSize! * 0.01 * size + 'px ' + settings.fontname;
 
-    const dom = require('./dom');
-    const ratio = settings.ratio || dom.dpr;
-    const ctx = dom.create_canvas(size, ratio).getContext('2d');
-    ctx.strokeStyle = settings.back;
-    ctx.lineWidth = settings.mSize * 0.01 * size * 0.1;
+    const ratio = settings.ratio || dpr;
+    const ctx = create_canvas(size, ratio).getContext('2d') as Ctx;
+    if (!ctx) {
+      return;
+    }
+    ctx.strokeStyle = settings.back!;
+    ctx.lineWidth = settings.mSize! * 0.01 * size * 0.1;
     ctx.fillStyle = settings.fontcolor;
     ctx.font = font;
-    const w = ctx.measureText(settings.label).width;
+    const w = ctx.measureText!(settings.label).width;
 
-    const sh = settings.mSize * 0.01;
+    const sh = settings.mSize! * 0.01;
     const sw = w / size;
-    const sl = (1 - sw) * settings.mPosX * 0.01;
-    const st = (1 - sh) * settings.mPosY * 0.01;
+    const sl = (1 - sw) * settings.mPosX! * 0.01;
+    const st = (1 - sh) * settings.mPosY! * 0.01;
     const x = sl * size;
-    const y = st * size + 0.75 * settings.mSize * 0.01 * size;
+    const y = st * size + 0.75 * settings.mSize! * 0.01 * size;
 
     const text_el = create_svg_el('text', {
         x,
@@ -144,25 +171,25 @@ const add_label = (el, settings) => {
         'stroke-width': ctx.lineWidth
     });
 
-    text_el.textContent = settings.label;
+    text_el.textContent = settings.label!;
     el.appendChild(text_el);
 };
 
-const add_image = (el, settings) => {
+const add_image = (el: HTMLElement | HTMLCanvasElement | SVGElement, settings: Settings) => {
     const size = settings.size;
     const w = settings.image.naturalWidth || 1;
     const h = settings.image.naturalHeight || 1;
-    const sh = settings.mSize * 0.01;
+    const sh = settings.mSize! * 0.01;
     const sw = sh * w / h;
-    const sl = (1 - sw) * settings.mPosX * 0.01;
-    const st = (1 - sh) * settings.mPosY * 0.01;
-    const x = sl * size;
-    const y = st * size;
-    const iw = sw * size;
-    const ih = sh * size;
+    const sl = (1 - sw) * settings.mPosX! * 0.01;
+    const st = (1 - sh) * settings.mPosY! * 0.01;
+    const x = sl * size!;
+    const y = st * size!;
+    const iw = sw * size!;
+    const ih = sh * size!;
 
     const img_el = create_svg_el('image', {
-        href: get_attr(settings.image, 'src'),
+        href: get_attr(settings.image, 'src')!,
         x,
         y,
         width: iw,
@@ -171,7 +198,7 @@ const add_image = (el, settings) => {
     el.appendChild(img_el);
 };
 
-const create_svg_qrcode = (qr, settings) => {
+export const create_svg_qrcode = (qr, settings: Settings) => {
     const size = settings.size;
     const mode = settings.mode;
 
@@ -207,5 +234,3 @@ const create_svg_qrcode = (qr, settings) => {
 
     return svg_el;
 };
-
-module.exports = create_svg_qrcode;

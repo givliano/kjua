@@ -1,4 +1,4 @@
-module.exports = {
+export const defaults = {
     // render method: 'canvas', 'image' or 'svg'
     render: 'image',
 

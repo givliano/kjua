@@ -1,8 +1,11 @@
-const win = window || {}; // eslint-disable-line no-undef
+const win = window || {
+  document: null,
+  devicePixelRatio: 1
+}; // eslint-disable-line no-undef
 const doc = win.document;
-const dpr = win.devicePixelRatio || 1;
+export const dpr = win.devicePixelRatio;
 
-const SVG_NS = 'http://www.w3.org/2000/svg';
+export const SVG_NS = 'http://www.w3.org/2000/svg';
 
 interface HTMLElementOpt {
     width: number | string | null;
@@ -24,7 +27,7 @@ interface SVGElementOpt {
     viewBox?: string;
 }
 
-const get_attr = (el: HTMLElement | SVGElement, key: string): string | null => el.getAttribute(key);
+export const get_attr = (el: HTMLElement | SVGElement, key: string): string | null => el.getAttribute(key);
 
 const set_attrs = (el: HTMLCanvasElement | HTMLElement | SVGElement, obj: HTMLElementOpt | SVGElementOpt): HTMLCanvasElement | HTMLElement | SVGElement => {
     Object.keys(obj || {}).forEach(key => {
@@ -33,15 +36,15 @@ const set_attrs = (el: HTMLCanvasElement | HTMLElement | SVGElement, obj: HTMLEl
     return el;
 };
 
-const create_el = (name: string, obj: HTMLElementOpt) => {
+export const create_el = (name: string, obj: HTMLElementOpt) => {
     return set_attrs(doc.createElement(name), obj);
 }
 
-const create_svg_el = (name: string, obj: SVGElementOpt) => {
+export const create_svg_el = (name: string, obj: SVGElementOpt) => {
     return set_attrs(doc.createElementNS(SVG_NS, name), obj);
 }
 
-const create_canvas = (size: number, ratio: number): HTMLCanvasElement => {
+export const create_canvas = (size: number, ratio: number): HTMLCanvasElement => {
     const canvas = create_el('canvas', {
         width: size * ratio,
         height: size * ratio
@@ -51,7 +54,7 @@ const create_canvas = (size: number, ratio: number): HTMLCanvasElement => {
     return canvas as HTMLCanvasElement;
 };
 
-const canvas_to_img = (canvas: HTMLCanvasElement) => {
+export const canvas_to_img = (canvas: HTMLCanvasElement) => {
     const img = create_el('img', {
         crossOrigin: 'anonymous',
         src: canvas.toDataURL('image/png'),
@@ -63,12 +66,3 @@ const canvas_to_img = (canvas: HTMLCanvasElement) => {
     return img;
 };
 
-export const dom = {
-    dpr,
-    SVG_NS,
-    get_attr,
-    create_el,
-    create_svg_el,
-    create_canvas,
-    canvas_to_img
-};
